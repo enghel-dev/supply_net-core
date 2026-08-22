@@ -1,0 +1,5 @@
+# Fuerza saltos de línea LF para scripts que corren dentro de contenedores
+# Linux, aunque el repo se clone/edite en Windows (evita el error
+# "bad interpreter" por CRLF en los .sh).
+*.sh text eol=lf
+*.sql text eol=lf

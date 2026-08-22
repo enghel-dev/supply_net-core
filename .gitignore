@@ -1,0 +1,21 @@
+# Entorno
+.env
+*.local
+
+# Node
+node_modules/
+dist/
+build/
+.next/
+coverage/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Docker / OS
+*.log
+.DS_Store
+Thumbs.db
