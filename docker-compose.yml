@@ -17,10 +17,12 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
       # Solo el script de verificación corre como init script de Postgres.
-      - ./services/db/init:/docker-entrypoint-initdb.d:ro
+      # :Z reetiqueta el bind-mount para SELinux (Podman rootless en
+      # Fedora/Bazzite lo exige; en Docker sin SELinux es inofensivo).
+      - ./services/db/init:/docker-entrypoint-initdb.d:ro,Z
       # El schema .sql vive fuera de docker-entrypoint-initdb.d para que
       # Postgres NO lo ejecute directo (lo aplica el script de verificación).
-      - ./services/db/schema:/sql:ro
+      - ./services/db/schema:/sql:ro,Z
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-supplynet} -d ${POSTGRES_DB:-supplynet}"]
       interval: 5s
@@ -41,7 +43,7 @@ services:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
-      - ./services/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - ./services/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro,Z
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -51,26 +53,27 @@ services:
       - supplynet_net
 
   # ==========================================================
-  # Backend - PENDIENTE (descomentar cuando el dev entregue el código)
+  # Backend - FastAPI (Dev 2)
   # ==========================================================
-  # backend:
-  #   build:
-  #     context: ./services/backend
-  #   container_name: supplynet_backend
-  #   restart: unless-stopped
-  #   environment:
-  #     DATABASE_URL: postgresql://${POSTGRES_USER:-supplynet}:${POSTGRES_PASSWORD:-supplynet_dev_password}@db:5432/${POSTGRES_DB:-supplynet}
-  #     REDIS_URL: redis://redis:6379
-  #     PORT: ${BACKEND_PORT:-3000}
-  #   ports:
-  #     - "${BACKEND_PORT:-3000}:3000"
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_healthy
-  #   networks:
-  #     - supplynet_net
+  backend:
+    build:
+      context: ./services/backend
+    container_name: supplynet_backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-supplynet}:${POSTGRES_PASSWORD:-supplynet_dev_password}@db:5432/${POSTGRES_DB:-supplynet}
+      REDIS_URL: redis://redis:6379
+      PORT: ${BACKEND_PORT:-3000}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-cambia-esto-en-tu-env-local}
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - supplynet_net
 
   # ==========================================================
   # Frontend - PENDIENTE (descomentar cuando el dev entregue el código)
