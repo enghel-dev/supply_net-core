@@ -64,51 +64,6 @@ Cada servicio vive en su propia carpeta bajo `services/`, con su propio
 | `backend` | ⏳ Pendiente | 3000 (sugerido) | Bloque comentado en `docker-compose.yml`, listo para descomentar |
 | `frontend` | ⏳ Pendiente | 5173 (sugerido) | Bloque comentado en `docker-compose.yml`, listo para descomentar |
 
-## Cobertura de requerimientos funcionales
-
-El schema de `db` (entregado por Dev 1) ya modela los datos para **los 9
-requerimientos funcionales** (RF-01 a RF-09) de `docs/requerimientos-funcionales.md`.
-Lo que falta para que cada uno funcione de punta a punta es el backend (API)
-y el frontend, todavía pendientes:
-
-| Prioridad (MoSCoW) | Requerimiento | Datos en `db` | Falta |
-|---|---|---|---|
-| Must have | RF-01 Registro/autenticación | `usuarios` (con `password_hash`, `rol`) | Backend: hashing, login, sesión/JWT |
-| Must have | RF-02 Perfil de proveedor | `proveedores` (+ `verificado`) | Backend: CRUD perfil |
-| Must have | RF-03 Catálogo de productos | `productos` (precio/stock con `CHECK >= 0`) | Backend: CRUD productos |
-| Must have | RF-05 Solicitud de cotización (RFQ) | `rfq_solicitudes` | Backend: CRUD RFQ |
-| Must have | RF-06 Ofertas de proveedores | `rfq_ofertas` (`UNIQUE` solicitud+proveedor) | Backend: CRUD ofertas, aceptar/rechazar |
-| Should have | RF-04 Búsqueda geolocalizada | índice `gist` + `earthdistance` en `proveedores` | Backend: endpoint de búsqueda por radio; **cachear en Redis** (ver abajo) |
-| Should have | RF-08 Panel del proveedor | join `productos` + `rfq_solicitudes` por categoría + `rfq_ofertas` | Backend + frontend |
-| Should have | RF-09 Panel del comprador | join `rfq_solicitudes` + `rfq_ofertas` | Backend + frontend |
-| Could have | RF-07 Verificación / sello | `verificaciones` (trigger ya sincroniza `proveedores.verificado`) | Backend: subida de documento, panel admin |
-
-Reglas de negocio de la sección 5 del doc de requerimientos (email único,
-oferta única por proveedor/solicitud, precios/stock ≥ 0, coordenadas válidas,
-sello no editable a mano) ya están aplicadas como `UNIQUE`, `CHECK` y
-triggers en el schema — no dependen del backend para cumplirse.
-
-## Por qué Redis
-
-Se agregó Redis como cache de lecturas frecuentes (listados de productos,
-categorías, búsquedas de proveedores cercanos) para no golpear Postgres en
-cada request del frontend. También responde directamente al requerimiento
-no funcional del doc de requerimientos: *"las búsquedas por cercanía deben
-responder en menos de 2 segundos"* (RF-04) — cachear resultados por
-`lat,lng,radio` evita recalcular la búsqueda geoespacial en cada request.
-Ver `services/redis/README.md` para el patrón de uso recomendado
-(cache-aside) y qué keys cachear.
-
-## Cuando lleguen los demás devs
-
-1. El dev de backend deja su código + `Dockerfile` en `services/backend/`.
-2. El dev de frontend deja su código + `Dockerfile` en `services/frontend/`.
-3. Se descomentan los bloques correspondientes en `docker-compose.yml`.
-4. `docker compose up -d --build`.
-
-Ambos servicios ya quedan pre-configurados para conectarse a `db` y
-`redis` por nombre de servicio (red interna de Docker), usando las
-variables `DATABASE_URL` / `REDIS_URL` — no hace falta hardcodear hosts.
 
 ## Reiniciar la base de datos local desde cero
 

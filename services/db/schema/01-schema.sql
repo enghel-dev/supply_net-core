@@ -184,20 +184,3 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trg_sync_proveedor_verificado
     AFTER INSERT OR UPDATE OF estado ON verificaciones
     FOR EACH ROW EXECUTE FUNCTION sync_proveedor_verificado();
-
--- ==========================
--- SEED DATA MÍNIMO PARA DESARROLLO
--- ==========================
-INSERT INTO categorias (nombre) VALUES
-  ('Insumos agrícolas'), ('Materia prima'), ('Equipos productivos'), ('Servicios especializados');
-
--- ==========================================================
--- QUERY DE EJEMPLO: buscar proveedores cercanos
--- (no se ejecuta al correr el script, es solo referencia)
--- ==========================================================
--- SELECT p.id, p.nombre_empresa, p.latitud, p.longitud,
---        earth_distance(ll_to_earth(p.latitud, p.longitud), ll_to_earth(:lat, :lng)) / 1000 AS distancia_km
--- FROM proveedores p
--- WHERE earth_box(ll_to_earth(:lat, :lng), :radio_metros) @> ll_to_earth(p.latitud, p.longitud)
--- ORDER BY distancia_km ASC
--- LIMIT 20;
