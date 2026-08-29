@@ -22,6 +22,7 @@
 # equivocado.
 
 SCHEMA_FILE="/sql/01-schema.sql"
+SEED_CATEGORIAS_FILE="/sql/02-seed-categorias.sql"
 
 echo "[supplynet-db-init] Verificando si el schema ya existe..."
 
@@ -41,4 +42,12 @@ elif [ "$TABLE_EXISTS" = "f" ]; then
 else
     echo "[supplynet-db-init] ERROR: no se pudo verificar el estado del schema. Detalle:"
     cat /tmp/supplynet_check_err 2>/dev/null
+fi
+
+# El seed de categorías es idempotente (ON CONFLICT DO NOTHING), así que se
+# aplica siempre, tanto en la primera inicialización como en reinicios de
+# este script — no depende de la verificación de "usuarios" de arriba.
+if [ -f "$SEED_CATEGORIAS_FILE" ]; then
+    echo "[supplynet-db-init] Aplicando seed de categorías (idempotente)..."
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -f "$SEED_CATEGORIAS_FILE"
 fi
