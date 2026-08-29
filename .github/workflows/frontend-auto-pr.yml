@@ -1,0 +1,33 @@
+name: Auto PR - rama frontend
+
+# Cada push a "frontend" abre (o mantiene actualizado, sin duplicar) un Pull
+# Request hacia main, para que el trabajo de esa rama quede visible para
+# revisión sin tener que abrir el PR a mano cada vez.
+on:
+  push:
+    branches:
+      - frontend
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  abrir-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Crear PR si todavía no existe
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh pr view frontend --json state -q .state >/dev/null 2>&1; then
+            echo "Ya existe un PR abierto para 'frontend' — no se crea uno nuevo."
+          else
+            gh pr create \
+              --base main \
+              --head frontend \
+              --title "Frontend: avances de Flutter" \
+              --body "PR automático — se abre al hacer push a la rama \`frontend\`. Se actualiza solo con cada push nuevo."
+          fi
