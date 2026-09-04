@@ -46,3 +46,12 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Andamiaje nativo — se genera con `flutter create` (a mano o en el
+# Dockerfile del build web), no se versiona. Ver README.md.
+/android/
+/ios/
+/linux/
+/macos/
+/windows/
+/web/

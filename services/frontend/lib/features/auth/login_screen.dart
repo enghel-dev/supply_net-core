@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../shared/widgets/primary_button.dart';
+import '../shared/widgets/supplynet_logo.dart';
 import 'auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -28,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _submit(AuthProvider auth) async {
     if (!_formKey.currentState!.validate()) return;
     final ok = await auth.login(email: _emailCtrl.text.trim(), password: _passwordCtrl.text);
-    if (ok && mounted) context.go('/');
+    if (ok && mounted) context.go('/splash');
   }
 
   @override
@@ -47,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Icon(Icons.hub_outlined, size: 56, color: AppColors.primary),
+                    const SupplyNetLogo(size: 112),
                     const SizedBox(height: 12),
                     Text(
                       'SupplyNet',

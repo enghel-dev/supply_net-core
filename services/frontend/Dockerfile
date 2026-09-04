@@ -14,7 +14,11 @@ COPY . .
 RUN flutter create --platforms=web --org com.byteflow .
 
 ARG API_BASE_URL=http://localhost:3000
-RUN flutter build web --release --dart-define=API_BASE_URL=${API_BASE_URL}
+# --pwa-strategy=none: sin service worker. Con él, el navegador puede
+# quedar sirviendo un bundle viejo cacheado tras un rebuild/redeploy (la
+# app se queda "pegada" hasta que el SW decide actualizar) — para un
+# proyecto que se reconstruye seguido no vale la pena el offline-first.
+RUN flutter build web --release --pwa-strategy=none --dart-define=API_BASE_URL=${API_BASE_URL}
 
 # ---------- Serve ----------
 FROM nginx:1.27-alpine

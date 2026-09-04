@@ -2,7 +2,7 @@ name: supplynet
 
 services:
   # ==========================================================
-  # DB - PostgreSQL (entregado por Dev 1)
+  # DB - PostgreSQL
   # ==========================================================
   db:
     image: postgres:16-alpine
@@ -53,7 +53,7 @@ services:
       - supplynet_net
 
   # ==========================================================
-  # Backend - FastAPI (Dev 2)
+  # Backend - FastAPI
   # ==========================================================
   backend:
     build:
@@ -75,22 +75,19 @@ services:
     networks:
       - supplynet_net
 
-  # ==========================================================
-  # Frontend - PENDIENTE (descomentar cuando el dev entregue el código)
-  # ==========================================================
-  # frontend:
-  #   build:
-  #     context: ./services/frontend
-  #   container_name: supplynet_frontend
-  #   restart: unless-stopped
-  #   environment:
-  #     VITE_API_URL: http://localhost:${BACKEND_PORT:-3000}
-  #   ports:
-  #     - "${FRONTEND_PORT:-5173}:5173"
-  #   depends_on:
-  #     - backend
-  #   networks:
-  #     - supplynet_net
+  frontend:
+    build:
+      context: ./services/frontend
+      args:
+        API_BASE_URL: http://localhost:${BACKEND_PORT:-3000}
+    container_name: supplynet_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-5173}:80"
+    depends_on:
+      - backend
+    networks:
+      - supplynet_net
 
 volumes:
   db_data:

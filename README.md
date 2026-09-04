@@ -7,8 +7,13 @@ Plataforma que conecta proveedores de insumos/materia prima con compradores
 (emprendedores, pequeños negocios, empresas) mediante búsqueda geolocalizada
 de proveedores, cotización múltiple (RFQ) y un sello de verificación.
 
-Requerimientos funcionales completos: [`docs/requerimientos-funcionales.md`](./docs/requerimientos-funcionales.md)
-(copia de `DOCUMENTOS/Requerimientos.txt` del hackatón).
+## Tecnologías utilizadas
+
+- **Base de datos:** PostgreSQL 16 + extensiones `cube`/`earthdistance` (geolocalización)
+- **Cache:** Redis 7 (`allkeys-lru`)
+- **Backend:** Python 3.12 + FastAPI + `asyncpg` (sin ORM), JWT para sesión
+- **Frontend:** Flutter
+- **Infraestructura:** Docker / docker-compose
 
 ## Estructura del proyecto
 
@@ -16,15 +21,13 @@ Requerimientos funcionales completos: [`docs/requerimientos-funcionales.md`](./d
 SupplyNet/
 ├── docker-compose.yml        # Orquesta todos los servicios
 ├── .env.example               # Variables de entorno (copiar a .env)
-├── docs/
-│   └── requerimientos-funcionales.md  # RF-01..09, reglas de negocio, MoSCoW
 ├── services/
-│   ├── db/                    # PostgreSQL — entregado por Dev 1
+│   ├── db/                    # PostgreSQL
 │   │   ├── init/               # Scripts que Postgres corre al iniciar
 │   │   └── schema/              # Schema SQL (fuente de verdad)
 │   ├── redis/                 # Cache de lecturas
-│   ├── backend/                # API — pendiente de entrega
-│   └── frontend/               # Cliente web — pendiente de entrega
+│   ├── backend/                # API FastAPI
+│   └── frontend/               # Cliente Flutter
 └── scripts/
     └── db-reset.sh             # Helper para reiniciar la DB local
 ```
@@ -34,13 +37,16 @@ Cada servicio vive en su propia carpeta bajo `services/`, con su propio
 
 ## Cómo levantar el proyecto
 
+Todo el proyecto corre sobre Docker / docker-compose — no hay una ruta
+soportada fuera de contenedores.
+
 1. Copia el archivo de variables de entorno:
    ```bash
    cp .env.example .env
    ```
-2. Levanta lo que ya está listo (db + redis):
+2. Levanta los servicios:
    ```bash
-   docker compose up -d
+   docker compose up -d --build
    ```
 3. Verifica que todo esté sano:
    ```bash
@@ -57,13 +63,12 @@ Cada servicio vive en su propia carpeta bajo `services/`, con su propio
 
 ## Servicios
 
-| Servicio | Estado | Puerto local | Notas |
-|---|---|---|---|
-| `db` (Postgres 16) | ✅ Listo | 5432 | Schema de Dev 1, con init condicional |
-| `redis` (Redis 7) | ✅ Listo | 6379 | Cache de lecturas (catálogo, búsquedas) |
-| `backend` | ⏳ Pendiente | 3000 (sugerido) | Bloque comentado en `docker-compose.yml`, listo para descomentar |
-| `frontend` | ⏳ Pendiente | 5173 (sugerido) | Bloque comentado en `docker-compose.yml`, listo para descomentar |
-
+| Servicio | Puerto local | Notas |
+|---|---|---|
+| `db` (Postgres 16) | 5432 | Init condicional, no reaplica el schema si ya existe |
+| `redis` (Redis 7) | 6379 | Cache de lecturas (catálogo, búsquedas) |
+| `backend` (FastAPI) | 3000 | Auth, perfil de proveedor, catálogo, RFQ/ofertas, búsqueda geolocalizada con cache — ver `services/backend/README.md` |
+| `frontend` (Flutter, build web) | 5173 | Cliente web servido con nginx; builds nativos de Windows/Android se generan aparte — ver `services/frontend/README.md` |
 
 ## Reiniciar la base de datos local desde cero
 

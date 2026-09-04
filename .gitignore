@@ -1,6 +1,7 @@
 # Entorno
 .env
 *.local
+CLAUDE.md
 
 # Node
 node_modules/
