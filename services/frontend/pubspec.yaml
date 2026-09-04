@@ -1,0 +1,43 @@
+name: supplynet_app
+description: Cliente SupplyNet — conecta compradores y proveedores (Windows, Android, web).
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # Estado
+  provider: ^6.1.2
+
+  # HTTP + backend
+  dio: ^5.7.0
+
+  # Ruteo con guards por rol
+  go_router: ^14.6.2
+
+  # Sesión (token JWT)
+  flutter_secure_storage: ^9.2.2
+  jwt_decoder: ^2.0.1
+
+  # Identidad visual (tipografía Inter)
+  google_fonts: ^6.2.1
+
+  # Formato de fecha/moneda
+  intl: ^0.19.0
+
+  # Mapa para elegir/mostrar la ubicación del proveedor (tiles OpenStreetMap, sin API key)
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
