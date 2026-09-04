@@ -15,10 +15,35 @@ class AuthProvider extends ChangeNotifier {
   String? errorMensaje;
   bool cargando = false;
 
+  /// Se marca en `registro()` cuando el rol elegido es "proveedor", para
+  /// que `HomeScreen` abra directo la pestaña de perfil (formulario de
+  /// creación) en vez del panel — un proveedor recién creado no tiene nada
+  /// que mostrar en el panel todavía. Se consume una sola vez (ver
+  /// `HomeScreen.initState`).
+  bool proveedorNuevo = false;
+
   /// Se llama una vez al arrancar la app para restaurar la sesión guardada
   /// en `TokenStorage`, si el JWT todavía no expiró.
+  ///
+  /// La lectura del token es casi instantánea, así que el splash (con el
+  /// logo y el aviso de que la app se hizo con ayuda de IA) apenas se
+  /// alcanzaba a ver — se fuerza un mínimo de tiempo en pantalla acá en
+  /// vez de en la UI, para no acoplar el router a este detalle.
+  ///
+  /// `flutter_secure_storage` en web depende de WebCrypto/IndexedDB del
+  /// navegador; si esa lectura se cuelga (storage corrupto, modo privado,
+  /// etc.) la app se queda pegada en el splash para siempre porque
+  /// `status` nunca sale de `desconocido` — el timeout evita eso tratando
+  /// un storage que no responde como "sin sesión".
   Future<void> restaurarSesion() async {
-    final token = await TokenStorage.instance.read();
+    final resultados = await Future.wait([
+      TokenStorage.instance.read().timeout(
+            const Duration(seconds: 4),
+            onTimeout: () => null,
+          ),
+      Future.delayed(const Duration(milliseconds: 1200)),
+    ]);
+    final token = resultados[0] as String?;
     if (token == null || JwtDecoder.isExpired(token)) {
       await TokenStorage.instance.clear();
       status = AuthStatus.noAutenticado;
@@ -45,8 +70,8 @@ class AuthProvider extends ChangeNotifier {
     required String password,
     required String rol,
     String? telefono,
-  }) {
-    return _ejecutarAuth(
+  }) async {
+    final ok = await _ejecutarAuth(
       () => Repositories.auth.registro(
         nombre: nombre,
         email: email,
@@ -55,6 +80,8 @@ class AuthProvider extends ChangeNotifier {
         telefono: telefono,
       ),
     );
+    if (ok && rol == 'proveedor') proveedorNuevo = true;
+    return ok;
   }
 
   Future<bool> _ejecutarAuth(Future<Session> Function() accion) async {

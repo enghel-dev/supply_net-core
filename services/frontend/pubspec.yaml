@@ -30,9 +30,12 @@ dependencies:
   # Formato de fecha/moneda
   intl: ^0.19.0
 
-  # Mapa para elegir/mostrar la ubicación del proveedor (tiles OpenStreetMap, sin API key)
+  # Mapa para elegir/mostrar la ubicación del proveedor (tiles CARTO, sin API key)
   flutter_map: ^7.0.2
   latlong2: ^0.9.1
+
+  # GPS para ubicar al proveedor automáticamente (con permiso del usuario)
+  geolocator: ^13.0.2
 
 dev_dependencies:
   flutter_test:
@@ -41,3 +44,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/branding/

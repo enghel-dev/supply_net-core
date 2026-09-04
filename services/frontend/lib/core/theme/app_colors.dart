@@ -21,4 +21,11 @@ class AppColors {
   static const background = Color(0xFFF1F5F9);
   static const surface = Color(0xFFFFFFFF);
   static const border = Color(0xFFE2E8F0);
+
+  // Modo oscuro — misma escala de slate, invertida.
+  static const textPrimaryDark = Color(0xFFF1F5F9);
+  static const textSecondaryDark = Color(0xFF94A3B8);
+  static const backgroundDark = Color(0xFF0F172A);
+  static const surfaceDark = Color(0xFF1E293B);
+  static const borderDark = Color(0xFF334155);
 }

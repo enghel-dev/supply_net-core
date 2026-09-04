@@ -39,7 +39,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
       rol: _rol,
       telefono: _telefonoCtrl.text.trim().isEmpty ? null : _telefonoCtrl.text.trim(),
     );
-    if (ok && mounted) context.go('/');
+    if (ok && mounted) context.go('/splash');
   }
 
   @override

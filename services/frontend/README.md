@@ -69,6 +69,10 @@ Definida en Figma (archivo del equipo) y reflejada en `lib/core/theme/`: índigo
   explícito, o los requests a la API fallan en silencio en el APK firmado.
 - El backend ya trae CORS abierto (`allow_origins=["*"]`) para que el build web funcione sin
   configuración extra — ver `services/backend/app/main.py`.
-- La geolocalización no usa GPS del dispositivo: el comprador ajusta lat/lng a mano (default:
-  Managua) para no depender de un plugin nativo (`geolocator`). Es un candidato natural para
-  una iteración siguiente.
+- El selector de ubicación (perfil de proveedor) permite marcar el punto tocando el mapa o con
+  el botón de GPS (`geolocator`, con permiso del usuario). En **Android**, tras el `flutter
+  create` inicial hay que agregar a `android/app/src/main/AndroidManifest.xml`:
+  `<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />` (y
+  `ACCESS_COARSE_LOCATION` si se quiere permitir precisión aproximada), o el botón de GPS falla
+  en silencio. En **web** no hace falta nada — el navegador pide el permiso solo, y funciona
+  sobre `http://localhost` sin necesitar HTTPS.
